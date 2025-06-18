@@ -1,0 +1,174 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>حجز موعد – بسمة ثقة</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f0f4f8;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+     h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      padding: 8px;
+      background: #e6f0ff;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      width: 80px; 
+      margin: 0 auto;
+    }
+
+    .card.selected {
+      border-color: #007bff;
+      background: #cfe2ff;
+    }
+
+    button {
+      padding: 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #responseMsg {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>مجمع عيادات بسمة ثقة لطب الأسنان</h1>
+    <h2>احجز موعدك</h2>
+    <form id="bookingForm">
+      <input name="name" placeholder="اسم المريض" required>
+      <input name="phone" placeholder="رقم الجوال" required>
+
+      <label>اختر الدكتور:</label>
+      <div class="grid" id="doctorGrid"></div>
+      <input type="hidden" name="doctor" id="doctorInput" required>
+
+      <label>اختر التاريخ:</label>
+      <input type="date" name="date" required>
+
+      <label>اختر الوقت:</label>
+      <div class="grid" id="timeGrid"></div>
+      <input type="hidden" name="time_slot" id="timeInput" required>
+
+      <button type="submit">احجز الموعد</button>
+      <p id="responseMsg"></p>
+    </form>
+  </div>
+
+  <script>
+    const doctors = [
+      'د. أحمد الزهراني', 'د. نورة الشهري', 'د. خالد السبيعي',
+      'د. سارة القحطاني', 'د. عبدالمجيد العنزي', 'د. ريم العبدالله',
+      'د. ماجد الحربي', 'د. أماني الغامدي', 'د. فهد المطيري', 'د. هالة العتيبي'
+    ];
+
+    const doctorGrid = document.getElementById('doctorGrid');
+    const doctorInput = document.getElementById('doctorInput');
+
+    doctors.forEach(name => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.textContent = name;
+      div.onclick = () => {
+        document.querySelectorAll('#doctorGrid .card').forEach(c => c.classList.remove('selected'));
+        div.classList.add('selected');
+        doctorInput.value = name;
+      };
+      doctorGrid.appendChild(div);
+    });
+
+    const timeGrid = document.getElementById('timeGrid');
+    const timeInput = document.getElementById('timeInput');
+
+    function generateTimeSlots(start = 10, end = 23) {
+  const slots = [];
+  for (let h = start; h <= end; h++) {
+    slots.push(`${h.toString().padStart(2, '0')}:00-${(h + 1).toString().padStart(2, '0')}:00`);
+  }
+  return slots;
+}
+
+
+    generateTimeSlots().forEach(time => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.textContent = time;
+      div.onclick = () => {
+        document.querySelectorAll('#timeGrid .card').forEach(c => c.classList.remove('selected'));
+        div.classList.add('selected');
+        timeInput.value = time;
+      };
+      timeGrid.appendChild(div);
+    });
+
+    const form = document.getElementById('bookingForm');
+    const msg = document.getElementById('responseMsg');
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      const res = await fetch('https://appointment-api.onrender.com/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      msg.textContent = result.message;
+      msg.style.color = res.ok ? 'green' : 'red';
+    };
+  </script>
+</body>
+</html>
