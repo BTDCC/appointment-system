@@ -1,0 +1,48 @@
+/* public/style.css */
+body {
+  font-family: 'Arial', sans-serif;
+  background: #344072;
+  padding: 20px;
+  direction: rtl;
+}
+
+h1 {
+  color: #080808;
+}
+
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  box-shadow: 0 0 70px #ccc;
+}
+
+input, select, button {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
