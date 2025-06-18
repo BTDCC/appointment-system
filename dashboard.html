@@ -1,85 +1,174 @@
-<!-- public/dashboard.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>لوحة مواعيد العيادة</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - مجمع عيادات بسمة ثقة لطب الأسنان</title>
   <style>
     body {
-      background-color: #f0f4f8;
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      font-family: 'Tahoma', sans-serif;
+      text-align: center;
+      background: #6474ce;
+    }
+    .login-box, .dashboard-box {
+      max-width: 800px;
+      margin: 100px auto;
+      background: rgb(231, 228, 228);
       padding: 40px;
+      border-radius: 50px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 1000px;
+    label, input, select {
+      display: block;
+      margin: 10px auto;
+      width: 90%;
+      padding: 10px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-
-    th, td {
+    table, th, td {
       border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
     }
-
-    th {
-      background-color: #007bff;
+    th, td {
+      padding: 10px;
+    }
+    button {
+      padding: 10px 50px;
+      background-color: #3498db;
       color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 50px;
+    }
+    .actions button {
+      margin: 2px;
+      background-color: #2ecc71;
+    }
+    .actions .cancel {
+      background-color: #e74c3c;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h3>مجمع عيادات بسمة ثقة لطب الأسنان</h3>
-    <h1 style="text-align: center;">لوحة مواعيد العيادة</h1>
-    <table id="appointmentsTable">
-      <thead>
-        <tr>
-          <th>اسم المريض</th>
-          <th>رقم الجوال</th>
-          <th>الدكتور</th>
-          <th>التاريخ</th>
-          <th>الوقت</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
 
-  <script>
-    async function loadAppointments() {
-      const res = await fetch('https://appointment-system-78rd.onrender.com/appointments');
-      const data = await res.json();
-      const tbody = document.querySelector('#appointmentsTable tbody');
-      tbody.innerHTML = '';
-      data.forEach(app => {
-        const row = `<tr>
-          <td>${app.patient_name}</td>
-          <td>${app.patient_phone}</td>
-          <td>${app.doctor}</td>
-          <td>${app.date}</td>
-          <td>${app.time_slot}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
+<div class="login-box" id="loginBox">
+  <h2>تسجيل الدخول</h2>
+  <input type="text" id="username" placeholder="اسم المستخدم">
+  <input type="password" id="password" placeholder="كلمة المرور">
+  <button onclick="login()">دخول</button>
+  <p id="loginMsg" style="color:red;"></p>
+</div>
+
+<div class="dashboard-box" id="dashboardBox" style="display:none">
+  <h2>مجمع عيادات بسمة ثقة لطب الأسنان</h2>
+  <h2>لوحة المواعيد</h2>
+<button onclick="logout()" style="float: left; margin: 10px; background-color: #e74c3c;">تسجيل الخروج</button>
+
+  <select id="filterDoctor">
+    <option value="">كل الأطباء</option>
+    <option value="د. أحمد الزهراني">د. أحمد</option>
+    <option value="د. سارة القحطاني">د. سارة</option>
+    <option value="د. خالد السبيعي">د. خالد</option>
+    <option value="د. نورة الشهري">د. نورة</option>
+    <option value="د. عبدالمجيد العنزي">د. عبدالمجيد</option>
+    <option value="د. ريم العبدالله">د. ريم</option>
+    <option value="د. ماجد الحربي">د. ماجد</option>
+    <option value="د. أماني الغامدي">د. أماني</option>
+    <option value="د. فهد المطيري">د. فهد</option>
+    <option value="د. هالة العتيبي">د. هالة</option>
+  </select>
+  <input type="date" id="filterDate">
+  <button onclick="loadAppointments()">تحديث</button>
+
+  <table id="appointmentsTable">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>الجوال</th>
+        <th>الدكتور</th>
+        <th>التاريخ</th>
+        <th>الوقت</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  const apiBase = 'https://appointment-system-78rd.onrender.com';
+
+  function login() {
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
+    if (u === 'admin' && p === '12345') {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboardBox').style.display = 'block';
+      loadAppointments();
+    } else {
+      document.getElementById('loginMsg').textContent = 'بيانات الدخول غير صحيحة';
     }
+  }
 
-    loadAppointments();
-  </script>
+  async function loadAppointments() {
+    const res = await fetch(`https://appointment-system-78rd.onrender.com/appointments`);
+    const data = await res.json();
+
+    const filterDoctor = document.getElementById('filterDoctor').value;
+    const filterDate = document.getElementById('filterDate').value;
+    const tbody = document.querySelector('#appointmentsTable tbody');
+    tbody.innerHTML = '';
+
+    const filtered = data.filter(app => {
+      return (!filterDoctor || app.doctor.trim() === filterDoctor.trim()) &&
+             (!filterDate || app.date === filterDate);
+    });
+
+    filtered.forEach(app => {
+      const row = `<tr>
+        <td>${app.patient_name}</td>
+        <td>${app.patient_phone}</td>
+        <td>${app.doctor}</td>
+        <td>${app.date}</td>
+        <td>${app.time_slot}</td>
+      </tr>`;
+      tbody.innerHTML += row;
+    });
+  }
+
+ 
+function login() {
+  const u = document.getElementById('username').value;
+  const p = document.getElementById('password').value;
+  if (u === 'admin' && p === '12345') {
+    localStorage.setItem('loggedIn', 'true');
+    showDashboard();
+  } else {
+    document.getElementById('loginMsg').textContent = 'بيانات الدخول غير صحيحة';
+  }
+}
+function showDashboard() {
+  document.getElementById('loginBox').style.display = 'none';
+  document.getElementById('dashboardBox').style.display = 'block';
+  loadAppointments();
+}
+function logout() {
+  localStorage.removeItem('loggedIn');
+  document.getElementById('dashboardBox').style.display = 'none';
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+}
+window.onload = () => {
+  if (localStorage.getItem('loggedIn') === 'true') {
+    showDashboard();
+  }
+};
+
+
+</script>
+
 </body>
 </html>
