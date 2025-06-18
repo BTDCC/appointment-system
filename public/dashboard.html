@@ -63,7 +63,7 @@
 
   <script>
     async function loadAppointments() {
-      const res = await fetch('/appointments');
+      const res = await fetch('https://appointment-system-78rd.onrender.com');
       const data = await res.json();
       const tbody = document.querySelector('#appointmentsTable tbody');
       tbody.innerHTML = '';
