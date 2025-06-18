@@ -160,7 +160,7 @@
     form.onsubmit = async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form).entries());
-      const res = await fetch('https://appointment-system-78rd.onrender.com', {
+      const res = await fetch('https://appointment-api.onrender.com/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
